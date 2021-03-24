@@ -17,13 +17,13 @@ class LoginInterceptor {
     CurrentTenant currentTenant
 
 
-    LogInterceptor() {
+    /*LogInterceptor() {
         matchAll()
-    }
+    }*/
 
 
     boolean before() {
-        HttpServletRequest req = request as HttpServletRequest
+        /*HttpServletRequest req = request as HttpServletRequest
         String x_request_id = req.getHeader(LogConstants.X_REQUEST_ID)
         if(!x_request_id){
             x_request_id = UUID.randomUUID().toString().replace("-", "")
@@ -56,7 +56,7 @@ class LoginInterceptor {
             path += request.pathInfo
         }
 
-        log.info "==== request url: ${req.method} ${path}$queryString ===="
+        log.info "==== request url: ${req.method} ${path}$queryString ===="*/
         return true
     }
 
