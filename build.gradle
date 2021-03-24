@@ -10,6 +10,8 @@ buildscript {
     }
 }
 
+
+
 version "0.1"
 group "demo.limei"
 
@@ -23,7 +25,23 @@ apply plugin:"org.grails.grails-gsp"
 
 repositories {
     maven { url "https://repo.grails.org/grails/core" }
+    maven {
+        name "public"
+        credentials {
+            username mavenUser
+            password mavenPassword
+        }
+        url "http://nexus.xsio.cn/repository/xsio-jar"
+    }
 }
+
+dependencyManagement {
+    imports {
+        mavenBom "com.convertlab:hub-bom:1.85.0"
+    }
+}
+
+
 
 configurations {
     developmentOnly
@@ -33,6 +51,8 @@ configurations {
 }
 
 dependencies {
+    compile("com.convertlab:common:1.85.2")
+    compile("com.convertlab:error-code:1.85.0")
     developmentOnly("org.springframework.boot:spring-boot-devtools")
     compile "org.springframework.boot:spring-boot-starter-logging"
     compile "org.springframework.boot:spring-boot-autoconfigure"
