@@ -134,3 +134,13 @@ environments:
         dataSource:
             logSql: true
             formatSql: true
+
+
+
+kafkaServer:
+    bootstrap:
+        servers: localhost:9092
+    createDemo:
+        topic: demo-create-demo-record
+        group: demo-create-demo-record
+        numConsumers: 1

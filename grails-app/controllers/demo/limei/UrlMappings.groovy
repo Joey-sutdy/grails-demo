@@ -9,6 +9,8 @@ class UrlMappings {
             }
         }
 
+        "/user/kafka"("controller":"UserController","action":"createByKafka","method":"post")
+
         "/"(view:"/index")
         "500"(view:'/error')
         "404"(view:'/notFound')

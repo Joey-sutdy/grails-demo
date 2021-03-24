@@ -1,0 +1,9 @@
+[
+  {
+    "name": "demo-create-demo-record",
+    "consumerServices": [
+      "grails-demo"
+    ],
+    "partitions": 2
+  }
+]
