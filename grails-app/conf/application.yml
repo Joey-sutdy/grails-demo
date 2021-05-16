@@ -144,3 +144,11 @@ kafkaServer:
         topic: demo-create-demo-record
         group: demo-create-demo-record
         numConsumers: 1
+
+
+server:
+    port: 18018
+    servlet:
+        session:
+            cookie:
+                name: 'TSESSIONID'

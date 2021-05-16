@@ -1,76 +1,78 @@
 buildscript {
+    ext {
+        grailsVersion = project.grailsVersion
+    }
     repositories {
+        mavenLocal()
         maven { url "https://repo.grails.org/grails/core" }
     }
     dependencies {
         classpath "org.grails:grails-gradle-plugin:$grailsVersion"
-        classpath "gradle.plugin.com.github.erdi.webdriver-binaries:webdriver-binaries-gradle-plugin:2.0"
-        classpath "org.grails.plugins:hibernate5:7.0.4"
-        classpath "com.bertramlabs.plugins:asset-pipeline-gradle:3.2.4"
-        classpath 'org.grails.plugins:database-migration:3.1.0'
+        git commit --amend        classpath "org.grails.plugins:hibernate5:${gormVersion - ".RELEASE"}"
+        classpath "com.bertramlabs.plugins:asset-pipeline-gradle:2.14.8"
+        classpath 'org.grails.plugins:database-migration:3.0.4'
     }
 }
 
-
-
 version "0.1"
-group "demo.limei"
+group "tms"
 
 apply plugin:"eclipse"
 apply plugin:"idea"
 apply plugin:"war"
 apply plugin:"org.grails.grails-web"
-apply plugin:"com.github.erdi.webdriver-binaries"
-apply plugin:"com.bertramlabs.asset-pipeline"
-apply plugin:"org.grails.grails-gsp"
+apply plugin:"asset-pipeline"
+
+ext {
+    grailsVersion = project.grailsVersion
+    gradleWrapperVersion = project.gradleWrapperVersion
+}
+
+assets {
+    minifyJs = true
+    minifyCss = true
+}
+
+def branch = System.getProperty("branch") ?: "master"
+def repo = branch == "master" ? "xsio-test" : "xsio-jar"
 
 repositories {
+    mavenLocal()
     maven { url "https://repo.grails.org/grails/core" }
+    maven { url "http://dl.bintray.com/yamkazu/plugins" }
+    maven { url "https://jitpack.io" }
     maven {
         name "public"
         credentials {
             username mavenUser
             password mavenPassword
         }
-        url "http://nexus.xsio.cn/repository/xsio-jar"
+        url "http://nexus.xsio.cn/repository/${repo}"
     }
+}
+
+configurations.all {
+    resolutionStrategy.cacheDynamicVersionsFor 0, 'seconds'
 }
 
 dependencyManagement {
     imports {
-        mavenBom "com.convertlab:hub-bom:1.85.0"
+        mavenBom "org.grails:grails-bom:$grailsVersion"
+        mavenBom "com.convertlab:hub-bom:${branch}.+"
     }
-}
-
-
-
-configurations {
-    developmentOnly
-    runtimeClasspath {
-        extendsFrom developmentOnly
-    }
+    applyMavenExclusions false
 }
 
 dependencies {
-    // 公司公共包引用
-    compile("com.convertlab:common:1.85.2")
-    compile("com.convertlab:error-code:1.85.0")
-    // 添加logback依赖
-    compile "net.logstash.logback:logstash-logback-encoder"
-    compile "ch.qos.logback:logback-classic"
-    // mysql
-    compile "mysql:mysql-connector-java"
+    compile("com.convertlab:common:${branch}.+")
+    compile("com.convertlab:error-code:${branch}.+")
+    compile("com.convertlab:content-template:${branch}.+")
+    compile("com.convertlab:customer-meta:${branch}.+")
 
-    compile 'org.grails.plugins:database-migration:3.1.0'
-    compile 'org.liquibase:liquibase-core:3.10.1'
-    // 增加Kafka依赖
-
-
-    developmentOnly("org.springframework.boot:spring-boot-devtools")
+    // grails
     compile "org.springframework.boot:spring-boot-starter-logging"
     compile "org.springframework.boot:spring-boot-autoconfigure"
     compile "org.grails:grails-core"
-    //compile "org.springframework.boot:spring-boot-starter-actuator"
     compile "org.springframework.boot:spring-boot-starter-tomcat"
     compile "org.grails:grails-web-boot"
     compile "org.grails:grails-logging"
@@ -85,38 +87,62 @@ dependencies {
     compile "org.grails.plugins:scaffolding"
     compile "org.grails.plugins:events"
     compile "org.grails.plugins:hibernate5"
-    compile "org.hibernate:hibernate-core:5.4.18.Final"
+    compile "org.hibernate:hibernate-core:5.1.5.Final"
     compile "org.grails.plugins:gsp"
-    compileOnly "io.micronaut:micronaut-inject-groovy"
+
     console "org.grails:grails-console"
     profile "org.grails.profiles:web"
     runtime "org.glassfish.web:el-impl:2.1.2-b03"
-    runtime "com.h2database:h2"
     runtime "org.apache.tomcat:tomcat-jdbc"
-    runtime "javax.xml.bind:jaxb-api:2.3.1"
-    runtime "com.bertramlabs.plugins:asset-pipeline-grails:3.2.4"
-    testCompile "io.micronaut:micronaut-inject-groovy"
+    runtime "com.bertramlabs.plugins:asset-pipeline-grails:2.14.8"
     testCompile "org.grails:grails-gorm-testing-support"
-    testCompile "org.mockito:mockito-core"
     testCompile "org.grails:grails-web-testing-support"
-    testCompile "org.grails.plugins:geb"
-    testCompile "org.seleniumhq.selenium:selenium-remote-driver:3.14.0"
-    testCompile "org.seleniumhq.selenium:selenium-api:3.14.0"
-    testCompile "org.seleniumhq.selenium:selenium-support:3.14.0"
-    testRuntime "org.seleniumhq.selenium:selenium-chrome-driver:3.14.0"
-    testRuntime "org.seleniumhq.selenium:selenium-firefox-driver:3.14.0"
+    testCompile "org.grails.plugins:geb:1.1.2"
+    testRuntime "org.seleniumhq.selenium:selenium-chrome-driver:2.47.1"
+    testRuntime "org.seleniumhq.selenium:selenium-htmlunit-driver:2.47.1"
+    testRuntime "net.sourceforge.htmlunit:htmlunit:2.18"
+
+    // we added
+
+    compile "mysql:mysql-connector-java"
+    compile "org.grails.plugins:database-migration:3.0.4"
+    compile "org.liquibase:liquibase-core:3.5.3"
+
+
+    compile "org.eclipse.jgit:org.eclipse.jgit:4.4.1.201607150455-r"
+
+    compile "org.springframework.boot:spring-boot-starter-security"
+    compile "org.apache.oltu.oauth2:org.apache.oltu.oauth2.authzserver:1.0.1"
+
+    compile "com.google.guava:guava"
+
+    compile "org.apache.poi:poi"
+    compile "org.apache.poi:poi-ooxml"
+    compile "org.apache.httpcomponents:httpclient"
+    compile "org.apache.httpcomponents:httpmime"
+    compile "org.grails.plugins:quartz:2.0.12"
+    compile "redis.clients:jedis"
+
+    compile "joda-time:joda-time"
+    compile "com.github.kenglxn.QRGen:javase"
+    compile "commons-io:commons-io"
+    compile "org.freemarker:freemarker"
+    compile "ch.qos.logback:logback-classic"
+    compile "org.apache.kafka:kafka-clients"
+    compile "net.logstash.logback:logstash-logback-encoder"
+    compile group:'com.aliyun.oss',name:'aliyun-sdk-oss',version:'2.6.0'
+    compile group: 'com.aliyun', name: 'aliyun-java-sdk-core', version: '4.4.2'
+    compile group: 'com.aliyun', name: 'aliyun-java-sdk-cdn', version: '3.0.8'
+
+    compile "dev.samstevens.totp:totp:1.7" // 2FA TOTP
+
+    // let debug in intellij doable
+    compile "org.springframework:springloaded:1.2.8.RELEASE"
+
 }
 
-bootRun {
-    ignoreExitValue true
-    jvmArgs(
-        '-Dspring.output.ansi.enabled=always', 
-        '-noverify', 
-        '-XX:TieredStopAtLevel=1',
-        '-Xmx1024m')
-    sourceResources sourceSets.main
-    String springProfilesActive = 'spring.profiles.active'
-    systemProperty springProfilesActive, System.getProperty(springProfilesActive)
+task wrapper(type: Wrapper) {
+    gradleVersion = gradleWrapperVersion
 }
 
 sourceSets {
@@ -127,27 +153,7 @@ sourceSets {
     }
 }
 
-
-tasks.withType(GroovyCompile) {
-    configure(groovyOptions) {
-        forkOptions.jvmArgs = ['-Xmx1024m']
-    }
-}
-
-webdriverBinaries {
-    chromedriver '2.45.0'
-    geckodriver '0.24.0'
-}
-
-tasks.withType(Test) {
-    systemProperty "geb.env", System.getProperty('geb.env')
-    systemProperty "geb.build.reportsDir", reporting.file("geb/integrationTest")
-    systemProperty "webdriver.chrome.driver", System.getProperty('webdriver.chrome.driver')
-    systemProperty "webdriver.gecko.driver", System.getProperty('webdriver.gecko.driver')
-}
-
-
-assets {
-    minifyJs = true
-    minifyCss = true
+war {
+    baseName = "tms"
+    version = "latest"
 }
