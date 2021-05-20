@@ -8,5 +8,4 @@ import com.convertlab.multitenancy.resolver.ThreadLocalTenantResolver
 beans = {
     currentTenant(CurrentTenantThreadLocal)
     tenantResolver(ThreadLocalTenantResolver)
-    kafkaProducerService(KafkaProducerService)
 }
